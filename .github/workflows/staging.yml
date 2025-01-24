@@ -1,0 +1,32 @@
+name: Staging Build
+
+on:
+  push:
+    branches: [ staging ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+           
+    - name: Deploying to Server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.DEPLOY_HOST }}
+        username: ${{ secrets.DEPLOY_USER }}
+        key: ${{ secrets.DEPLOY_KEY }}
+        port: ${{ secrets.DEPLOY_PORT }}
+        script: |
+          cd /home/chandimal/devops-portfolio/devops-portfolio-sanity
+          nvm use 20
+          export NVM_DIR=/www/server/nvm
+          source /www/server/nvm/nvm.sh
+          nvm use 20
+          node -v
+          git checkout staging
+          git branch
+          git pull
+          yarn
+          yarn build
+          pm2 restart 0
+          echo "DevOps Portfolio Sanity Deployment Completed"
